@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aşk Bahçesi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Georgia', serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Arka plan gül yaprağı efekti */
+        #petal-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .card-container {
+            width: 90%;
+            max-width: 650px;
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            z-index: 20;
+            position: relative;
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.8s ease-in-out forwards;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .image-wrapper {
+            width: 100%;
+            height: 320px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 1px solid rgba(244, 63, 94, 0.3);
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .story-text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #e2e8f0;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 10px;
+        }
+
+        .final-card {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .final-card h2 {
+            color: #fb7185;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .final-card p {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #f1f5f9;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #e11d48, #be123c);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(225, 29, 72, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(225, 29, 72, 0.5);
+        }
+
+        button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+            opacity: 0.5;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .image-wrapper { height: 220px; }
+            .story-text { font-size: 0.95rem; }
+            .final-card p { font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="petal-canvas"></canvas>
+
+    <div class="card-container">
+        <!-- 1. Adım -->
+        <div class="step active">
+            <div class="image-wrapper">
+                <img src="gorsel1.jpeg" alt="Soluk Bahçe">
+            </div>
+            <div class="story-text">
+                "Sen gelmeden önce, dünya biraz eksik, bahçeler biraz renksizdi... Kendi halinde, sessiz ve yaprakları solmuş bir masal gibi."
+            </div>
+        </div>
+
+        <!-- 2. Adım -->
+        <div class="step">
+            <div class="image-wrapper">
+                <img src="gorsel2.jpeg" alt="Açan Gül Bahçesi">
+            </div>
+            <div class="story-text">
+                "Ama sen bir adım attın... Ve bastığın her toprak ansızın filizlendi. Güller yeniden kokusunu hatırladı, yapraklar yeşiline kavuştu."
+            </div>
+        </div>
+
+        <!-- 3. Adım (Final) -->
+        <div class="step">
+            <div class="final-card">
+                <h2>Aşk Bahçemize... ❤️</h2>
+                <p>
+                    Güller teknik sebeplerden dolayı belki bugün fiziken eline ulaşamadı... Ama varsın ulaşmasın.<br><br>
+                    Çünkü onlar çoktan senin adım attığın her yerde, gözlerinin değdiği her renkte ve kalbimizdeki o hiç solmayacak aşk bahçesindeler.<br><br>
+                    <strong>İyi ki varsın Samira...</strong>
+                </p>
+            </div>
+        </div>
+
+        <!-- Navigasyon Butonları -->
+        <div class="nav-buttons">
+            <button id="prevBtn" onclick="changeStep(-1)" disabled>Geri</button>
+            <button id="nextBtn" onclick="changeStep(1)">İleri</button>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const steps = document.querySelectorAll('.step');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        function changeStep(direction) {
+            steps[currentStep].classList.remove('active');
+            currentStep += direction;
+            steps[currentStep].classList.add('active');
+
+            prevBtn.disabled = currentStep === 0;
+            if (currentStep === steps.length - 1) {
+                nextBtn.style.display = 'none';
+            } else {
+                nextBtn.style.display = 'block';
+                nextBtn.textContent = 'İleri';
+            }
+        }
+
+        // Gül yaprağı yağmuru efekti
+        const canvas = document.getElementById('petal-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const petals = [];
+        for (let i = 0; i < 25; i++) {
+            petals.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 8 + 5,
+                speedY: Math.random() * 1 + 0.5,
+                speedX: Math.random() * 0.6 - 0.3,
+                opacity: Math.random() * 0.6 + 0.3
+            });
+        }
+
+        function drawPetals() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            petals.forEach(p => {
+                ctx.beginPath();
+                ctx.fillStyle = `rgba(244, 63, 94, ${p.opacity})`;
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                p.y += p.speedY;
+                p.x += p.speedX;
+
+                if (p.y > canvas.height) {
+                    p.y = -10;
+                    p.x = Math.random() * canvas.width;
+                }
+            });
+            requestAnimationFrame(drawPetals);
+        }
+        drawPetals();
+    </script>
+</body>
+</html>
